@@ -1,113 +1,102 @@
 import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, CommandHandler, CallbackQueryHandler, filters
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import ApplicationBuilder, CallbackQueryHandler, CommandHandler, ContextTypes, MessageHandler, filters
 import os
 import openai
 
-# Configura tu clave de API
+# Configura tus claves
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
 
-# Información de servicios
 SERVICIOS = {
     "vip": {
-        "nombre": "❤️ Canal VIP",
-        "precio": 300,
-        "descripcion": "Incluye:
-✨ Fotos y videos diarios XXX
-❤️ Contacto directo vía WhatsApp
-🎁 Descuentos exclusivos
-📞 Llamadas y videollamadas especiales",
+        "nombre": "Canal VIP",
+        "precio": "$300 MXN",
+        "descripcion": "Incluye:\n✨ Fotos y videos diarios XXX\n❤️ Contacto directo vía WhatsApp\n🎁 Descuentos exclusivos\n📞 Llamadas y videollamadas especiales",
+        "pago": "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044"
     },
     "videollamada": {
-        "nombre": "📹 Videollamada",
-        "precio": 500,
-        "descripcion": "15 minutos de videollamada XXX, totalmente personalizada.",
+        "nombre": "Videollamada",
+        "precio": "$500 MXN",
+        "descripcion": "Incluye una videollamada de 15 minutos en vivo con Amanda con contenido explícito.",
+        "pago": "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044"
     },
     "sexchat": {
-        "nombre": "💬 Sex Chat",
-        "precio": 300,
-        "descripcion": "Intercambio de textos, fotos, audios calientes y atención exclusiva.",
+        "nombre": "Sex Chat",
+        "precio": "$300 MXN",
+        "descripcion": "Incluye intercambio de fantasías, fotos, audios y videos en tiempo real.",
+        "pago": "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044"
     },
     "video": {
-        "nombre": "🎥 Video personalizado",
-        "precio": 500,
-        "descripcion": "Video de 20 minutos haciendo lo que desees 😈, entrega en <12h y acceso VIP por 15 días.",
+        "nombre": "Video personalizado",
+        "precio": "$500 MXN",
+        "descripcion": "Incluye un video de 20 minutos haciendo lo que el cliente desee. Envío en menos de 12 horas + 15 días de acceso gratis al canal VIP.",
+        "pago": "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044"
     }
 }
 
-# Botones base
-def botones_servicios():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton(s["nombre"] + f" (${s['precio']})", callback_data=key)] for key, s in SERVICIOS.items()
-    ])
-
-# Mensaje de bienvenida
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = [[
+        InlineKeyboardButton("❤️ Canal VIP ($300)", callback_data='vip'),
+        InlineKeyboardButton("📹 Videollamada ($500)", callback_data='videollamada'),
+        InlineKeyboardButton("💬 Sex Chat ($300)", callback_data='sexchat'),
+        InlineKeyboardButton("🎥 Video Personalizado ($500)", callback_data='video')
+    ]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     bienvenida = (
-        "Hola cariño 💖, soy *Amanda IA*, la asistente personal de Amanda.
-
-"
-        "Estoy aquí para ayudarte a elegir el servicio que más te guste:
-"
+        "Hola cariño 💖, soy *Amanda IA*, la asistente personal de Amanda. 💋\n"
+        "Estoy aquí para ayudarte a conocer todos sus servicios. ¿Quieres saber más? 💕\n"
+        "Selecciona una opción abajo para comenzar 👇"
     )
-    await update.message.reply_text(bienvenida, reply_markup=botones_servicios(), parse_mode="Markdown")
+    await update.message.reply_text(bienvenida, reply_markup=reply_markup, parse_mode="Markdown")
 
-# Manejador de botones
 async def botones(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    key = query.data
-    servicio = SERVICIOS.get(key)
-    if servicio:
-        mensaje = (
-            f"{servicio['nombre']} – ${servicio['precio']} MXN
+    opcion = query.data
+    servicio = SERVICIOS[opcion]
 
-"
-            f"{servicio['descripcion']}
+    texto = f"*{servicio['nombre']}* — {servicio['precio']}\n\n{servicio['descripcion']}\n\nPago seguro por [Mercado Pago]({servicio['pago']}) o escríbeme por [transferencia](https://t.me/ami_pra)."
+    await query.edit_message_text(text=text, parse_mode="Markdown", disable_web_page_preview=True, reply_markup=InlineKeyboardMarkup([[
+        InlineKeyboardButton("🛒 Pagar ahora", url=servicio['pago']),
+        InlineKeyboardButton("📩 Enviar mensaje a Amanda", url="https://t.me/ami_pra")
+    ]]))
 
-"
-            "Pago seguro por Mercado Pago:
-"
-            "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044
+async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    texto_usuario = update.message.text.lower()
 
-"
-            "O por transferencia, escríbele directamente a: @ami_pra"
-        )
-        await query.edit_message_text(mensaje)
+    for clave, servicio in SERVICIOS.items():
+        if clave in texto_usuario:
+            mensaje = f"*{servicio['nombre']}* — {servicio['precio']}\n\n{servicio['descripcion']}\n\nPago seguro por [Mercado Pago]({servicio['pago']}) o escríbeme por [transferencia](https://t.me/ami_pra)."
+            await update.message.reply_text(mensaje, parse_mode="Markdown", disable_web_page_preview=True, reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🛒 Pagar ahora", url=servicio['pago']),
+                InlineKeyboardButton("📩 Enviar mensaje a Amanda", url="https://t.me/ami_pra")
+            ]]))
+            return
 
-# Genera respuesta automática con GPT
-async def responder(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    texto = update.message.text
+    # Por defecto responde con IA
+    respuesta = await obtener_respuesta(texto_usuario)
+    await update.message.reply_text(respuesta)
 
-    try:
-        respuesta = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": (
-                    "Eres Amanda IA, una asistente virtual femenina que representa a Amanda. "
-                    "Hablas de forma sugerente, directa, pero formal y profesional. "
-                    "Tu objetivo principal es vender servicios como Canal VIP, Sex Chat, Videollamadas y Videos personalizados. "
-                    "Siempre que sea posible, al finalizar cada mensaje muestra botones para contratar."
-                )},
-                {"role": "user", "content": texto}
-            ],
-            max_tokens=300
-        )
-        mensaje = respuesta.choices[0].message.content
-        await update.message.reply_text(mensaje, reply_markup=botones_servicios())
-    except Exception as e:
-        logging.error(f"Error al generar respuesta: {e}")
-        await update.message.reply_text("Lo siento, amor... hubo un problema al responderte, pero ya estoy aquí para ti.")
+async def obtener_respuesta(texto):
+    prompt = (
+        "Responde como Amanda IA, asistente virtual. Tu objetivo es ofrecer los servicios de Amanda (Canal VIP, videollamadas, sex chat, videos personalizados).\n"
+        "Sé amable, clara y directa. Si el usuario menciona algo relacionado con precios, beneficios o pagos, siempre incluye botones de pago y resalta las ventajas.\n"
+        f"Usuario: {texto}\nAmanda IA:"
+    )
 
-# Configuración del bot
-def main():
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response.choices[0].message.content
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(botones))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, responder))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, manejar_mensaje))
     app.run_polling()
-
-if __name__ == "__main__":
-    main()
