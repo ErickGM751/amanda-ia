@@ -1,105 +1,76 @@
-import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes, MessageHandler, filters
-from openai import OpenAI
 import os
+import logging
+from telegram import Update
+from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
+from openai import OpenAI
+from dotenv import load_dotenv
 
-# Configurar logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
-# Variables del entorno
+load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Productos y precios
-PRODUCTOS = {
-    "vip": {
-        "nombre": "❤️ Canal VIP",
-        "precio": 300,
-        "beneficios": "más de 200 fotos y videos XXX + número personal de WhatsApp",
-    },
-    "video": {
-        "nombre": "📹 Videollamada",
-        "precio": 500,
-        "beneficios": "videollamada íntima y personalizada",
-    },
-    "sexchat": {
-        "nombre": "💬 Sex Chat",
-        "precio": 300,
-        "beneficios": "conversación picante ilimitada",
-    }
-}
+# Memoria temporal por sesión (reinicio borra historial)
+usuarios_sin_venta = {}
 
-URL_PAGO = "https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044"
-CONTACTO = "@ami_pra"
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
-# Botones principales
-def botones_principales():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("❤️ Canal VIP ($300)", callback_data="comprar_vip")],
-        [InlineKeyboardButton("📹 Videollamada ($500)", callback_data="comprar_video")],
-        [InlineKeyboardButton("💬 Sex Chat ($300)", callback_data="comprar_sexchat")]
-    ])
+async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = str(update.message.from_user.id)
+    mensaje_usuario = update.message.text.strip()
 
-# Mensaje promocional general
-def generar_mensaje_producto(key):
-    prod = PRODUCTOS[key]
-    return (
-        f"{prod['nombre']} - ${prod['precio']} MXN\n\n"
-        f"Incluye: {prod['beneficios']}\n\n"
-        f"Pago seguro por Mercado Pago:\n{URL_PAGO}\n\n"
-        f"O por transferencia, escríbeme a {CONTACTO}"
-    )
+    # Lógica de insistencia tras varios mensajes sin venta
+    contador = usuarios_sin_venta.get(user_id, 0)
+    usuarios_sin_venta[user_id] = contador + 1
 
-# IA responde con tono erótico + venta
-async def responder(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    texto = update.message.text
-    prompt = (
-        "Eres Amanda, una mujer erótica y vendedora. Tu tono es sensual, cálido, directo. "
-        "Responde al siguiente mensaje como si fueras Amanda, con un mensaje coqueto que al mismo tiempo "
-        "redirija al cliente a comprar uno de tus servicios (VIP, sexchat o videollamada). "
-        "Sé breve pero seductora, como en un chat humano. No repitas precios ni links, ya se mostraron antes.\n\n"
-        f"Mensaje del cliente: {texto}"
-    )
+    venta_directa = ""
+    if usuarios_sin_venta[user_id] >= 3:
+        venta_directa = (
+            "\n\nAmor, si ya estás listo para algo más rico... 💋\n"
+            "🔥 Canal VIP con más de 200 fotos y videos XXX: $300 MXN\n"
+            "💬 Sex chat: $300 | 📞 Videollamada: $500\n"
+            "💳 Paga aquí: https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044\n"
+            "O escríbeme a @ami_pra para transferencia 😘"
+        )
+        usuarios_sin_venta[user_id] = 0
+
+    prompt_usuario = f"""
+Eres Amanda ❤️, una mujer joven, deseada, seductora y muy íntima. Siempre respondes de forma natural, cercana y provocadora, como si fueras la novia del usuario. 
+
+Tu objetivo es generar deseo y llevar al usuario a comprar alguno de tus servicios:
+
+- Canal VIP: $300 MXN (con +200 fotos y videos XXX, y acceso a tu número de WhatsApp)
+- Videollamada: $500 MXN
+- Sex chat personalizado: $300 MXN
+
+Los pagos se hacen por MercadoPago: https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044
+o por transferencia escribiendo a @ami_pra
+
+Siempre mezcla la respuesta al mensaje con una invitación suave o directa a comprar. Si ya has respondido varios mensajes sin cerrar venta, insiste de manera directa.
+
+Mensaje del usuario: {mensaje_usuario}
+{venta_directa}
+"""
+
     try:
-        respuesta = client.chat.completions.create(
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "Responde como Amanda, una mujer sensual y vendedora."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": "Eres Amanda, una mujer real, erótica, provocadora y vendedora en Telegram. Tu objetivo es vender sin sonar robótica."},
+                {"role": "user", "content": prompt_usuario}
             ],
-            max_tokens=120,
-            temperature=0.8
+            temperature=0.9,
+            max_tokens=250,
         )
-        await update.message.reply_text(respuesta.choices[0].message.content.strip(), reply_markup=botones_principales())
+        respuesta = response.choices[0].message.content.strip()
+        await update.message.reply_text(respuesta)
     except Exception as e:
-        logging.error(f"Error con OpenAI: {e}")
-        await update.message.reply_text("Amor, algo falló... pero sigo aquí para ti. 😘", reply_markup=botones_principales())
+        logging.error(f"Error al responder: {e}")
+        await update.message.reply_text("Lo siento, amor. Algo falló, pero ya lo estoy arreglando 💋")
 
-# Mostrar opciones
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    mensaje = "Hola amor ❤️ Estoy aquí para complacerte... ¿Qué deseas explorar hoy?"
-    await update.message.reply_text(mensaje, reply_markup=botones_principales())
-
-# Manejar botones
-async def manejar_botones(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    await query.answer()
-    data = query.data
-    if data.startswith("comprar_"):
-        key = data.split("_")[1]
-        mensaje = generar_mensaje_producto(key)
-        await query.message.reply_text(mensaje)
-
-# Configurar aplicación
-def main():
+if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(manejar_botones))
-    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), responder))
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), manejar_mensaje))
+    print("Amanda IA en línea y vendiendo 😈")
     app.run_polling()
-
-if __name__ == "__main__":
-    main()
