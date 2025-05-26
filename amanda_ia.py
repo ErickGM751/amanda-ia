@@ -11,9 +11,9 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 openai.api_key = OPENAI_API_KEY
 
-# Función para obtener respuesta desde OpenAI
+# Función para obtener respuesta desde OpenAI (corregida con acreate)
 async def obtener_respuesta(texto_usuario):
-    response = openai.ChatCompletion.create(
+    response = await openai.ChatCompletion.acreate(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": "Eres Amanda, una mujer atractiva, conversacional y cercana. Responde con naturalidad."},
