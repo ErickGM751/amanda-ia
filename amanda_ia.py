@@ -1,100 +1,114 @@
 import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, MessageHandler, ContextTypes, filters
-from openai import OpenAI
-import os
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters, CallbackQueryHandler
 
-# Variables de entorno
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+TOKEN = "AQUÍ_TU_TOKEN"
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
-# Configurar logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-
-# Botones de pago
-def botones_pago():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("❤️ Canal VIP ($300)", callback_data="vip")],
-        [InlineKeyboardButton("📹 Videollamada ($500)", callback_data="video")],
-        [InlineKeyboardButton("💬 Sex Chat ($300)", callback_data="sexchat")],
-        [InlineKeyboardButton("🎥 Video Personalizado ($500)", callback_data="personalizado")],
-        [InlineKeyboardButton("✅ Pagar con Mercado Pago", url="https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044")],
-        [InlineKeyboardButton("🏦 Transferencia / Hablar con Amanda", url="https://t.me/ami_pra")]
-    ])
-
-# Info detallada por servicio
-DETALLE = {
-    "vip": "✨ *Canal VIP – $300 MXN*\n• +200 fotos y videos XXX\n• Fotos y videos diarios\n• Número personal de WhatsApp\n• Descuentos en contenido adicional\n• Llamadas y videollamadas exclusivas",
-    "video": "🎥 *Videollamada – $500 MXN*\n• 15 minutos en vivo contigo\n• Experiencia íntima totalmente personalizada",
-    "sexchat": "💬 *Sex Chat – $300 MXN*\n• Conversación caliente al momento\n• Fotos, audios y videos exclusivos",
-    "personalizado": "🎁 *Video Personalizado – $500 MXN*\n• 20 minutos haciendo lo que tú desees\n• Entrega en menos de 12 horas\n• Incluye 15 días gratis en Canal VIP"
-}
-
-# IA con tono formal pero amable
-async def responder(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    texto = update.message.text
-    prompt = (
-        "Eres Amanda IA, una asistente virtual con tono formal pero cariñoso. "
-        "Respondes de forma breve y clara. Tu objetivo es ayudar al cliente a resolver dudas "
-        "y ofrecer los servicios disponibles, explicando beneficios, precios y formas de pago cuando lo pidan. "
-        f"Mensaje: {texto}"
-    )
-    try:
-        response = client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "Eres una asistente virtual de ventas con tono humano y claro."},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=180,
-            temperature=0.8
-        )
-        await update.message.reply_text(response.choices[0].message.content.strip(), reply_markup=botones_pago())
-    except Exception as e:
-        logging.error(f"Error con OpenAI: {e}")
-        await update.message.reply_text("Lo siento, algo falló. Puedes escribirme directamente a @ami_pra 💌")
-
-# Mensaje de bienvenida
-async def bienvenida(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    mensaje = (
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    bienvenida = (
         "Hola cariño 💖, soy *Amanda IA*, la asistente personal de Amanda.
 
 "
-        "Estoy aquí para ayudarte a conocer sus servicios, resolver tus dudas y guiarte si deseas adquirir algo especial.
+        "Estoy aquí para ayudarte a conocer todos sus servicios y resolver cualquier duda que tengas. "
+        "Estos son los servicios disponibles:
 
 "
-        "*Servicios disponibles:*
+        "❤️ Canal VIP ($300 MXN)
 "
-        "• Canal VIP – $300
+        "📸 Video personalizado ($500 MXN)
 "
-        "• Videollamada – $500
+        "📞 Videollamada ($500 MXN)
 "
-        "• Sex Chat – $300
-"
-        "• Video Personalizado – $500
+        "💬 Sex Chat ($300 MXN)
 
 "
-        "Haz clic en cualquiera de los botones para conocer más o realizar tu compra."
+        "Selecciona el que te interese para más detalles:"
     )
-    await update.message.reply_text(mensaje, reply_markup=botones_pago(), parse_mode="Markdown")
+    botones = [
+        [InlineKeyboardButton("❤️ Canal VIP ($300)", callback_data='vip')],
+        [InlineKeyboardButton("📸 Video personalizado ($500)", callback_data='video')],
+        [InlineKeyboardButton("📞 Videollamada ($500)", callback_data='llamada')],
+        [InlineKeyboardButton("💬 Sex Chat ($300)", callback_data='sexchat')]
+    ]
+    await update.message.reply_text(bienvenida, reply_markup=InlineKeyboardMarkup(buttones), parse_mode='Markdown')
 
-# Botones informativos
-async def botones(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def botones_servicios(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     data = query.data
-    if data in DETALLE:
-        await query.message.reply_text(DETALLE[data], parse_mode="Markdown", reply_markup=botones_pago())
 
-# Setup
-def main():
-    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    app.add_handler(CommandHandler("start", bienvenida))
-    app.add_handler(CallbackQueryHandler(botones))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, responder))
+    if data == 'vip':
+        texto = (
+            "*Canal VIP - $300 MXN*
+
+"
+            "✨ Fotos y videos diarios XXX
+"
+            "📱 Número personal de WhatsApp
+"
+            "🎁 Descuentos exclusivos en contenido adicional
+"
+            "📞 Llamadas y videollamadas privadas
+
+"
+            "Pago seguro por Mercado Pago:"
+        )
+    elif data == 'video':
+        texto = (
+            "*Video personalizado - $500 MXN*
+
+"
+            "🎥 Video de 20 minutos con el contenido que tú quieras
+"
+            "🚀 Entrega en menos de 12 horas
+"
+            "🎁 Incluye acceso gratis por 15 días al Canal VIP
+
+"
+            "Pago seguro por Mercado Pago:"
+        )
+    elif data == 'llamada':
+        texto = (
+            "*Videollamada - $500 MXN*
+
+"
+            "📞 15 minutos de videollamada erótica
+"
+            "💋 Interacción íntima y personalizada
+
+"
+            "Pago seguro por Mercado Pago:"
+        )
+    elif data == 'sexchat':
+        texto = (
+            "*Sex Chat - $300 MXN*
+
+"
+            "🔥 Intercambio de fantasías, textos, fotos, videos y audios al momento
+"
+            "💦 Todo lo que imagines, solo por mensaje
+
+"
+            "Pago seguro por Mercado Pago:"
+        )
+    else:
+        texto = "Servicio no reconocido."
+
+    botones_pago = [
+        [InlineKeyboardButton("💳 Pagar por MercadoPago", url="https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044")],
+        [InlineKeyboardButton("📩 Transferencia", url="https://t.me/ami_pra")]
+    ]
+
+    await query.edit_message_text(text=texto, reply_markup=InlineKeyboardMarkup(botones_pago), parse_mode='Markdown')
+
+if __name__ == '__main__':
+    app = ApplicationBuilder().token(TOKEN).build()
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CallbackQueryHandler(botones_servicios))
     app.run_polling()
-
-if __name__ == "__main__":
-    main()
