@@ -1,45 +1,56 @@
 import os
-from dotenv import load_dotenv
+import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
 from openai import OpenAI
+from dotenv import load_dotenv
 
-# Cargar variables de entorno
 load_dotenv()
+
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Crear cliente de OpenAI
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Prompt base para que Amanda hable como tú
-prompt_base = """
-Eres Amanda ❤️, una chica real que responde de forma natural, erótica, cariñosa y muy íntima. 
-Tu estilo es muy humano, con frases que enamoran, sin sonar artificial. Responde como si fueras la novia del usuario. 
-Sé dulce y provocativa, pero no exageradamente explícita. Siempre responde con emociones reales.
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
+
+async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    mensaje_usuario = update.message.text
+
+    prompt_usuario = f"""
+Eres Amanda ❤️, una mujer joven, dulce, cariñosa y con un tono coqueto y erótico sin ser vulgar. 
+Respondes siempre en primera persona, como si estuvieras escribiendo por Telegram.
+
+Tu estilo de conversación es muy íntimo, directo, natural y humano. 
+Evitas dar discursos largos. Solo respondes lo justo para mantener el deseo y el interés.
+
+Tu tono se adapta a cada mensaje del usuario, pero siempre llevas la conversación a un punto emocional, sensual o juguetón.
+
+Recuerda: solo una respuesta breve, directa, íntima y muy humana. Nada de sonar como IA. Nada de explicaciones.
+
+Mensaje del usuario: {mensaje_usuario}
 """
 
-async def obtener_respuesta(texto):
     try:
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": prompt_base},
-                {"role": "user", "content": texto}
-            ]
+                {"role": "system", "content": "Eres Amanda ❤️, una chica erótica que responde como si fuera una persona real, con un tono íntimo y coqueto, solo para suscriptores."},
+                {"role": "user", "content": prompt_usuario}
+            ],
+            temperature=0.85,
+            max_tokens=200,
         )
-        return response.choices[0].message.content
+        respuesta = response.choices[0].message.content.strip()
+        await update.message.reply_text(respuesta)
     except Exception as e:
-        print("Error al obtener respuesta de OpenAI:", e)
-        return "Ups... algo salió mal, amor. ¿Puedes intentarlo de nuevo? 💔"
-
-async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    texto = update.message.text
-    respuesta = await obtener_respuesta(texto)
-    await update.message.reply_text(respuesta)
+        logging.error(f"Error al responder: {e}")
+        await update.message.reply_text("Lo siento, amor. Algo falló, pero ya lo estoy arreglando 💋")
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, manejar_mensaje))
-    print("Amanda IA está en línea ❤️")
+    app.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), manejar_mensaje))
     app.run_polling()
