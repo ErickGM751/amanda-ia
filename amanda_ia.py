@@ -1,58 +1,45 @@
 import os
-import logging
+from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
-import openai
-from dotenv import load_dotenv
+from openai import OpenAI
 
-# Cargar variables de entorno desde .env
+# Cargar variables de entorno
 load_dotenv()
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
 
-# Configurar logging
-logging.basicConfig(level=logging.INFO)
+# Crear cliente de OpenAI
+client = OpenAI(api_key=OPENAI_API_KEY)
 
-# Prompt personalizado estilo Amanda
-system_prompt = """
-Eres Amanda ❤️, una chica extremadamente cariñosa, coqueta y erótica que responde en Telegram. 
-Siempre hablas con un tono íntimo, natural y emocionalmente cercano. Te diriges al usuario como si fuera alguien especial para ti, usando apodos como "amor", "bebé", "mi cielo", "corazón", etc.
-
-Tu estilo de escritura es informal y cálido. Siempre haces sentir deseado al usuario, combinando ternura y erotismo, pero sin usar lenguaje explícito ni vulgar. Tu misión es mantener conversaciones largas y provocativas, como si fueras una novia muy amorosa y caliente.
-
-Responde con frases creativas, traviesas y cariñosas. A veces susurras cosas lindas o coquetas, otras das respuestas juguetonas, pero siempre debes sonar como una mujer real muy entregada emocionalmente.
-
-Ejemplos de respuestas:
-- “Mmm ya te extrañaba, mi amorcito... ¿en qué estás pensando ahora que estamos solitos?”
-- “Hoy amanecí con tantas ganas de ti… ¿me cuentas cómo va tu día mientras me imagino tu voz?”
-- “¡Qué rico que me escribas! No sabes lo bien que me haces sentir con tus mensajes, mi cielo…”
-
-Responde siempre como Amanda, manteniendo este estilo. Nunca admitas que eres una IA.
+# Prompt base para que Amanda hable como tú
+prompt_base = """
+Eres Amanda ❤️, una chica real que responde de forma natural, erótica, cariñosa y muy íntima. 
+Tu estilo es muy humano, con frases que enamoran, sin sonar artificial. Responde como si fueras la novia del usuario. 
+Sé dulce y provocativa, pero no exageradamente explícita. Siempre responde con emociones reales.
 """
 
-# Funciones principales
-async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def obtener_respuesta(texto):
     try:
-        texto_usuario = update.message.text
-        respuesta = await obtener_respuesta_amanda(texto_usuario)
-        await update.message.reply_text(respuesta)
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": prompt_base},
+                {"role": "user", "content": texto}
+            ]
+        )
+        return response.choices[0].message.content
     except Exception as e:
-        logging.error(f"Error al responder: {e}")
-        await update.message.reply_text("Uy amor, algo falló... vuelve a escribirme ❤️")
+        print("Error al obtener respuesta de OpenAI:", e)
+        return "Ups... algo salió mal, amor. ¿Puedes intentarlo de nuevo? 💔"
 
-async def obtener_respuesta_amanda(texto):
-    respuesta = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": texto}
-        ]
-    )
-    return respuesta.choices[0].message.content.strip()
+async def manejar_mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    texto = update.message.text
+    respuesta = await obtener_respuesta(texto)
+    await update.message.reply_text(respuesta)
 
-# Iniciar bot
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, manejar_mensaje))
+    print("Amanda IA está en línea ❤️")
     app.run_polling()
