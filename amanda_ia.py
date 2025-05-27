@@ -16,11 +16,11 @@ logger = logging.getLogger(__name__)
 # Diccionario de servicios
 SERVICIOS = {
     "canal_vip": {
-        "nombre": "❤️‍🔥 Canal VIP",
+        "nombre": "🔥 Canal VIP",
         "descripcion": """💖 <b>Canal VIP</b> — $300 MXN / mes
 🔓 Acceso a más de <b>200 fotos y videos XXX</b>
 📲 Mi número personal de WhatsApp
- Videollamadas privadas
+📹 Videollamadas privadas
 💬 Mensajes 24/7 conmigo
 👉 <a href='https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044'>Ir al pago</a>""",
         "post_pago": InlineKeyboardMarkup([
@@ -34,46 +34,40 @@ SERVICIOS = {
 🎥 20 minutos privados contigo
 🧴 Tú diriges, yo obedezco
 💦 En tiempo real
- Escríbeme: @ami_pra"""
+➡️ Escríbeme: @ami_pra"""
     },
     "sex_chat": {
         "nombre": "💋 Sex Chat",
         "descripcion": """💋 <b>Sex Chat</b> — $300 MXN / 30 minutos
-❤️‍🔥 Audios + fotos + videos calientes
+🔥 Audios + fotos + videos calientes
 😈 Tú mandas... yo me entrego
 📲 Todo por chat íntimo
- Escríbeme: @ami_pra"""
+➡️ Escríbeme: @ami_pra"""
     },
     "novia_virtual": {
-        "nombre": "❤️‍❤️‍🔥 Novia Virtual",
-        "descripcion": """❤️‍❤️‍🔥 <b>Novia Virtual</b> — $500 MXN / 2 semanas
+        "nombre": "❤️‍🔥 Novia Virtual",
+        "descripcion": """❤️‍🔥 <b>Novia Virtual</b> — $500 MXN / 2 semanas
 💌 Trato de novio 24/7
 📱 Mensajes, llamadas, contenido personalizado
 🥺 Te cuido, te caliento, te provoco…
- Escríbeme: @ami_pra"""
+➡️ Escríbeme: @ami_pra"""
     },
     "video_personalizado": {
         "nombre": "🎬 Video Personalizado",
-        "nombre": "🎬 Video Personalizado",
         "descripcion": """🎬 <b>Video Personalizado</b> — $500 MXN
- 20 minutos haciendo lo que tú digas
- Desinhibida, obediente y entregada
- Entrega < 12 hrs
- Incluye 15 días <b>GRATIS</b> en Canal VIP
- Escríbeme: @ami_pra"""
- 20 minutos haciendo lo que tú digas
- Desinhibida, obediente y entregada
- Entrega < 12 hrs
- Incluye 15 días <b>GRATIS</b> en Canal VIP
- Escríbeme: @ami_pra"""
+⏱️ 20 minutos haciendo lo que tú digas
+🎭 Desinhibida, obediente y entregada
+📦 Entrega < 12 hrs
+🎁 Incluye 15 días <b>GRATIS</b> en Canal VIP
+➡️ Escríbeme: @ami_pra"""
     },
     "sextape": {
-        "nombre": " Sextape",
-        "descripcion": """ <b>Sextape Privada</b>
-❤️‍🔥 Videos XXX de 15 a 30 minutos
+        "nombre": "📹 Sextape",
+        "descripcion": """📹 <b>Sextape Privada</b>
+🔥 Videos XXX de 15 a 30 minutos
 👀 Solo para tus ojos
 🧨 Hechos a tu medida
- Escríbeme: @ami_pra"""
+➡️ Escríbeme: @ami_pra"""
     }
 }
 
@@ -83,7 +77,7 @@ def obtener_teclado_servicios():
     return InlineKeyboardMarkup(botones)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    bienvenida = "Hola amor... soy <b>Amanda</b> 😈\n¿Quieres algo rico, privado y solo para ti? Tengo varios pecados que no se dicen... <i>se pagan</i> ❤️‍🔥\n\nElige el que más se te antoje 👇"
+    bienvenida = "Hola amor... soy <b>Amanda</b> 😈\n¿Quieres algo rico, privado y solo para ti? Tengo varios pecados que no se dicen... <i>se pagan</i> 🔥\n\nElige el que más se te antoje 👇"
     await update.message.reply_text(bienvenida, parse_mode="HTML", reply_markup=obtener_teclado_servicios())
 
 # OpenAI con nueva API (v1)
