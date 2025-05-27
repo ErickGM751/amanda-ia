@@ -20,7 +20,7 @@ SERVICIOS = {
         "descripcion": """💖 <b>Canal VIP</b> — $300 MXN / mes
 🔓 Acceso a más de <b>200 fotos y videos XXX</b>
 📲 Mi número personal de WhatsApp
-📹 Videollamadas privadas
+ Videollamadas privadas
 💬 Mensajes 24/7 conmigo
 👉 <a href='https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044'>Ir al pago</a>""",
         "post_pago": InlineKeyboardMarkup([
@@ -68,8 +68,8 @@ SERVICIOS = {
  Escríbeme: @ami_pra"""
     },
     "sextape": {
-        "nombre": "📹 Sextape",
-        "descripcion": """📹 <b>Sextape Privada</b>
+        "nombre": " Sextape",
+        "descripcion": """ <b>Sextape Privada</b>
 🔥 Videos XXX de 15 a 30 minutos
 👀 Solo para tus ojos
 🧨 Hechos a tu medida
@@ -135,3 +135,4 @@ if __name__ == '__main__':
     app.add_handler(CallbackQueryHandler(botones))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, mensaje))
     app.run_polling()
+
