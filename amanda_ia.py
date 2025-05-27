@@ -25,7 +25,7 @@ SERVICIOS = {
 📲 Mi número personal de WhatsApp
 📹 Videollamadas privadas
 💬 Mensajes 24/7 conmigo
-👉 <a href="https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044">Ir al pago</a>""",
+👉 <a href='https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044'>Ir al pago</a>""",
         "post_pago": InlineKeyboardMarkup([
             [InlineKeyboardButton("✅ Ya realicé mi pago", callback_data="vip_pagado")],
             [InlineKeyboardButton("❌ Tuve un error con el pago", callback_data="vip_error")]
