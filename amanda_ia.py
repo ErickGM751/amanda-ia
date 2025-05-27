@@ -17,16 +17,20 @@ logger = logging.getLogger(__name__)
 SERVICIOS = {
     "canal_vip": {
         "nombre": "🔥 Canal VIP",
-        "descripcion": """💖 *Canal VIP* — $300 MXN / mes
-🔓 Acceso a más de *200 fotos y videos XXX*
+        "descripcion": """💖 <b>Canal VIP</b> — $300 MXN / mes
+🔓 Acceso a más de <b>200 fotos y videos XXX</b>
 📲 Mi número personal de WhatsApp
 📹 Videollamadas privadas
 💬 Mensajes 24/7 conmigo
-👉 [Ir al pago](https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044)"""
+👉 <a href='https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044'>Ir al pago</a>""",
+        "post_pago": InlineKeyboardMarkup([
+            [InlineKeyboardButton("✅ Ya realicé mi pago", callback_data="vip_pagado")],
+            [InlineKeyboardButton("❌ Tuve un error con el pago", callback_data="vip_error")]
+        ])
     },
     "videollamada": {
         "nombre": "📞 Videollamada",
-        "descripcion": """📞 *Videollamada 1 a 1* — $500 MXN
+        "descripcion": """📞 <b>Videollamada 1 a 1</b> — $500 MXN
 🎥 20 minutos privados contigo
 🧴 Tú diriges, yo obedezco
 💦 En tiempo real
@@ -34,7 +38,7 @@ SERVICIOS = {
     },
     "sex_chat": {
         "nombre": "💋 Sex Chat",
-        "descripcion": """💋 *Sex Chat* — $300 MXN / 30 minutos
+        "descripcion": """💋 <b>Sex Chat</b> — $300 MXN / 30 minutos
 🔥 Audios + fotos + videos calientes
 😈 Tú mandas... yo me entrego
 📲 Todo por chat íntimo
@@ -42,7 +46,7 @@ SERVICIOS = {
     },
     "novia_virtual": {
         "nombre": "❤️‍🔥 Novia Virtual",
-        "descripcion": """❤️‍🔥 *Novia Virtual* — $500 MXN / 2 semanas
+        "descripcion": """❤️‍🔥 <b>Novia Virtual</b> — $500 MXN / 2 semanas
 💌 Trato de novio 24/7
 📱 Mensajes, llamadas, contenido personalizado
 🥺 Te cuido, te caliento, te provoco…
@@ -50,16 +54,16 @@ SERVICIOS = {
     },
     "video_personalizado": {
         "nombre": "🎬 Video Personalizado",
-        "descripcion": """🎬 *Video Personalizado* — $500 MXN
+        "descripcion": """🎬 <b>Video Personalizado</b> — $500 MXN
 ⏱️ 20 minutos haciendo lo que tú digas
 🎭 Desinhibida, obediente y entregada
 📦 Entrega < 12 hrs
-🎁 Incluye 15 días *GRATIS* en Canal VIP
+🎁 Incluye 15 días <b>GRATIS</b> en Canal VIP
 ➡️ Escríbeme: @ami_pra"""
     },
     "sextape": {
         "nombre": "📹 Sextape",
-        "descripcion": """📹 *Sextape Privada*
+        "descripcion": """📹 <b>Sextape Privada</b>
 🔥 Videos XXX de 15 a 30 minutos
 👀 Solo para tus ojos
 🧨 Hechos a tu medida
@@ -67,17 +71,20 @@ SERVICIOS = {
     }
 }
 
-# Mensaje de bienvenida
+# Botones de bienvenida
 def obtener_teclado_servicios():
     botones = [[InlineKeyboardButton(s["nombre"], callback_data=key)] for key, s in SERVICIOS.items()]
     return InlineKeyboardMarkup(botones)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    bienvenida = "Hola amor... soy *Amanda* 😈\n¿Quieres algo rico, privado y solo para ti? Tengo varios pecados que no se dicen... *se pagan* 🔥\n\nElige el que más se te antoje 👇"
-    await update.message.reply_text(bienvenida, parse_mode="Markdown", reply_markup=obtener_teclado_servicios())
+    bienvenida = "Hola amor... soy <b>Amanda</b> 😈\n¿Quieres algo rico, privado y solo para ti? Tengo varios pecados que no se dicen... <i>se pagan</i> 🔥\n\nElige el que más se te antoje 👇"
+    await update.message.reply_text(bienvenida, parse_mode="HTML", reply_markup=obtener_teclado_servicios())
 
-# IA para responder mensajes
+# OpenAI con nueva API (v1)
 async def responder_con_ia(mensaje_usuario):
+    from openai import OpenAI
+    client = OpenAI(api_key=OPENAI_API_KEY)
+
     prompt_base = """
 Eres Amanda, una chica erótica, traviesa y cariñosa que vende contenido y servicios íntimos. Usa un tono sexy y atrevido. Si el cliente menciona un servicio específico, responde con la descripción adecuada.
 
@@ -87,26 +94,33 @@ Servicios disponibles:
 Cliente: {mensaje_usuario}
 Amanda:
 """
-    respuesta = openai.ChatCompletion.create(
+    chat_completion = client.chat.completions.create(
         model="gpt-4",
-        messages=[{"role": "user", "content": prompt_base}],
-        max_tokens=250,
-        temperature=0.8
+        messages=[{"role": "user", "content": prompt_base}]
     )
-    return respuesta.choices[0].message.content.strip()
+    return chat_completion.choices[0].message.content.strip()
 
-# Mensaje de texto recibido
+# Mensajes de texto normales
 async def mensaje(update: Update, context: ContextTypes.DEFAULT_TYPE):
     respuesta = await responder_con_ia(update.message.text)
-    await update.message.reply_text(respuesta, parse_mode="Markdown")
+    await update.message.reply_text(respuesta, parse_mode="HTML")
 
-# Cuando toca un botón
+# Botones: servicios + seguimiento
 async def botones(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    servicio = query.data
-    descripcion = SERVICIOS.get(servicio, {}).get("descripcion", "Servicio no disponible.")
-    await query.message.reply_text(descripcion, parse_mode="Markdown")
+    data = query.data
+
+    if data == "vip_pagado":
+        await query.message.reply_text("Gracias amor ❤️ ya confirmé tu pago. Prepárate para algo delicioso... 😘", parse_mode="HTML")
+    elif data == "vip_error":
+        await query.message.reply_text("No te preocupes, bebé 😘 escribe directo a @ami_pra y te ayudo a resolverlo todo 💌", parse_mode="HTML")
+    elif data in SERVICIOS:
+        descripcion = SERVICIOS[data].get("descripcion", "Servicio no disponible.")
+        markup = SERVICIOS[data].get("post_pago") if data == "canal_vip" else None
+        await query.message.reply_text(descripcion, parse_mode="HTML", reply_markup=markup)
+    else:
+        await query.message.reply_text("Servicio no reconocido 😔", parse_mode="HTML")
 
 # Main
 if __name__ == '__main__':
@@ -115,3 +129,4 @@ if __name__ == '__main__':
     app.add_handler(CallbackQueryHandler(botones))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, mensaje))
     app.run_polling()
+
