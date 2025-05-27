@@ -25,6 +25,11 @@ SERVICIOS = {
 📲 Mi número personal de WhatsApp
 📹 Videollamadas privadas
 💬 Mensajes 24/7 conmigo
+💖 <b>Canal VIP</b> — $300 MXN / mes
+🔐 Acceso a más de <b>200 fotos y videos XXX</b>
+📲 Mi número personal de WhatsApp
+📷 Videollamadas privadas
+💬 Mensajes 24/7 conmigo
 👉 <a href='https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044'>Ir al pago</a>""",
         "post_pago": InlineKeyboardMarkup([
             [InlineKeyboardButton("✅ Ya realicé mi pago", callback_data="vip_pagado")],
