@@ -59,12 +59,12 @@ SERVICIOS = {
  20 minutos haciendo lo que tú digas
  Desinhibida, obediente y entregada
  Entrega < 12 hrs
-🎁 Incluye 15 días <b>GRATIS</b> en Canal VIP
+ Incluye 15 días <b>GRATIS</b> en Canal VIP
 ➡️ Escríbeme: @ami_pra"""
  20 minutos haciendo lo que tú digas
  Desinhibida, obediente y entregada
  Entrega < 12 hrs
-🎁 Incluye 15 días <b>GRATIS</b> en Canal VIP
+ Incluye 15 días <b>GRATIS</b> en Canal VIP
 ➡️ Escríbeme: @ami_pra"""
     },
     "sextape": {
