@@ -34,7 +34,7 @@ SERVICIOS = {
 🎥 20 minutos privados contigo
 🧴 Tú diriges, yo obedezco
 💦 En tiempo real
-➡️ Escríbeme: @ami_pra"""
+ Escríbeme: @ami_pra"""
     },
     "sex_chat": {
         "nombre": "💋 Sex Chat",
@@ -42,7 +42,7 @@ SERVICIOS = {
 🔥 Audios + fotos + videos calientes
 😈 Tú mandas... yo me entrego
 📲 Todo por chat íntimo
-➡️ Escríbeme: @ami_pra"""
+ Escríbeme: @ami_pra"""
     },
     "novia_virtual": {
         "nombre": "❤️‍🔥 Novia Virtual",
@@ -50,7 +50,7 @@ SERVICIOS = {
 💌 Trato de novio 24/7
 📱 Mensajes, llamadas, contenido personalizado
 🥺 Te cuido, te caliento, te provoco…
-➡️ Escríbeme: @ami_pra"""
+ Escríbeme: @ami_pra"""
     },
     "video_personalizado": {
         "nombre": "🎬 Video Personalizado",
@@ -60,12 +60,12 @@ SERVICIOS = {
  Desinhibida, obediente y entregada
  Entrega < 12 hrs
  Incluye 15 días <b>GRATIS</b> en Canal VIP
-➡️ Escríbeme: @ami_pra"""
+ Escríbeme: @ami_pra"""
  20 minutos haciendo lo que tú digas
  Desinhibida, obediente y entregada
  Entrega < 12 hrs
  Incluye 15 días <b>GRATIS</b> en Canal VIP
-➡️ Escríbeme: @ami_pra"""
+ Escríbeme: @ami_pra"""
     },
     "sextape": {
         "nombre": "📹 Sextape",
@@ -73,7 +73,7 @@ SERVICIOS = {
 🔥 Videos XXX de 15 a 30 minutos
 👀 Solo para tus ojos
 🧨 Hechos a tu medida
-➡️ Escríbeme: @ami_pra"""
+ Escríbeme: @ami_pra"""
     }
 }
 
