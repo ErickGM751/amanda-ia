@@ -56,12 +56,12 @@ SERVICIOS = {
         "nombre": "🎬 Video Personalizado",
         "nombre": "🎬 Video Personalizado",
         "descripcion": """🎬 <b>Video Personalizado</b> — $500 MXN
-⏱️ 20 minutos haciendo lo que tú digas
+🕒 20 minutos haciendo lo que tú digas
 🎭 Desinhibida, obediente y entregada
 📦 Entrega < 12 hrs
 🎁 Incluye 15 días <b>GRATIS</b> en Canal VIP
 ➡️ Escríbeme: @ami_pra"""
-⏱️ 20 minutos haciendo lo que tú digas
+🕒 20 minutos haciendo lo que tú digas
 🎭 Desinhibida, obediente y entregada
 📦 Entrega < 12 hrs
 🎁 Incluye 15 días <b>GRATIS</b> en Canal VIP
