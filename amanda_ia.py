@@ -1,3 +1,7 @@
+
+async def manejar_errores(update, context):
+    print(f"Error capturado: {context.error}")
+from html import escape
 import os
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -119,7 +123,7 @@ async def botones(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data in SERVICIOS:
         descripcion = SERVICIOS[data].get("descripcion", "Servicio no disponible.")
         markup = SERVICIOS[data].get("post_pago") if data == "canal_vip" else None
-        await query.message.reply_text(descripcion, parse_mode="HTML", reply_markup=markup)
+        await query.message.reply_text(escape(descripcion), parse_mode="HTML", reply_markup=markup)
     else:
         await query.message.reply_text("Servicio no reconocido 😔", parse_mode="HTML")
 
