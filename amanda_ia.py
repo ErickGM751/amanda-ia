@@ -53,6 +53,7 @@ SERVICIOS = {
 ➡️ Escríbeme: @ami_pra"""
     },
     "video_personalizado": {
+        "nombre": "Video Personalizado",
         "nombre": "🎬 Video Personalizado",
         "descripcion": """🎬 <b>Video Personalizado</b> — $500 MXN
 ⏱️ 20 minutos haciendo lo que tú digas
