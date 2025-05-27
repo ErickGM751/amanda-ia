@@ -57,12 +57,12 @@ SERVICIOS = {
         "nombre": "🎬 Video Personalizado",
         "descripcion": """🎬 <b>Video Personalizado</b> — $500 MXN
  20 minutos haciendo lo que tú digas
-🎭 Desinhibida, obediente y entregada
+ Desinhibida, obediente y entregada
 📦 Entrega < 12 hrs
 🎁 Incluye 15 días <b>GRATIS</b> en Canal VIP
 ➡️ Escríbeme: @ami_pra"""
  20 minutos haciendo lo que tú digas
-🎭 Desinhibida, obediente y entregada
+ Desinhibida, obediente y entregada
 📦 Entrega < 12 hrs
 🎁 Incluye 15 días <b>GRATIS</b> en Canal VIP
 ➡️ Escríbeme: @ami_pra"""
@@ -135,3 +135,4 @@ if __name__ == '__main__':
     app.add_handler(CallbackQueryHandler(botones))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, mensaje))
     app.run_polling()
+
