@@ -1,6 +1,3 @@
-async def manejar_errores(update, context):
-    print(f"Error capturado: {context.error}")
-from html import escape
 import os
 import logging
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -25,17 +22,11 @@ SERVICIOS = {
 📲 Mi número personal de WhatsApp
 📹 Videollamadas privadas
 💬 Mensajes 24/7 conmigo
-💖 <b>Canal VIP</b> — $300 MXN / mes
-🔐 Acceso a más de <b>200 fotos y videos XXX</b>
-📲 Mi número personal de WhatsApp
-📷 Videollamadas privadas
-💬 Mensajes 24/7 conmigo
-""",
+👉 <a href='https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044'>Ir al pago</a>""",
         "post_pago": InlineKeyboardMarkup([
-        [InlineKeyboardButton("✅ Ya realicé mi pago", callback_data="vip_pagado")],
-        [InlineKeyboardButton("❌ Tuve un error con el pago", callback_data="vip_error")],
-        [InlineKeyboardButton("💳 Ir al pago", url="https://www.mercadopago.com.mx/subscriptions/checkout?preapproval_plan_id=2c93808497030fc701970475adc70044")]
-    ])
+            [InlineKeyboardButton("✅ Ya realicé mi pago", callback_data="vip_pagado")],
+            [InlineKeyboardButton("❌ Tuve un error con el pago", callback_data="vip_error")]
+        ])
     },
     "videollamada": {
         "nombre": "📞 Videollamada",
@@ -62,7 +53,6 @@ SERVICIOS = {
 ➡️ Escríbeme: @ami_pra"""
     },
     "video_personalizado": {
-        "nombre": "Video Personalizado",
         "nombre": "🎬 Video Personalizado",
         "descripcion": """🎬 <b>Video Personalizado</b> — $500 MXN
 ⏱️ 20 minutos haciendo lo que tú digas
@@ -128,26 +118,14 @@ async def botones(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data in SERVICIOS:
         descripcion = SERVICIOS[data].get("descripcion", "Servicio no disponible.")
         markup = SERVICIOS[data].get("post_pago") if data == "canal_vip" else None
-        await query.message.reply_text(escape(descripcion), parse_mode="HTML", reply_markup=markup)
+        await query.message.reply_text(descripcion, parse_mode="HTML", reply_markup=markup)
     else:
         await query.message.reply_text("Servicio no reconocido 😔", parse_mode="HTML")
 
 # Main
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    app.add_error_handler(manejar_errores)
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(botones))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, mensaje))
     app.run_polling()
-
-
-def main():
-    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
-    app.add_error_handler(manejar_errores)
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(manejar_callback))
-    app.run_polling()
-
-if __name__ == '__main__':
-    main()
