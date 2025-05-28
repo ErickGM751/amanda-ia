@@ -135,6 +135,7 @@ async def botones(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # Main
 if __name__ == '__main__':
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+app.add_error_handler(manejar_errores)
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(botones))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, mensaje))
